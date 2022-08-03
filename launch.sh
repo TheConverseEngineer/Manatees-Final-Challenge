@@ -30,6 +30,7 @@ for i in ${!TEAM_VEHICLES[@]}; do
 		SHOREIP="${SHOREIP}" \
 		SHORESIDE_PORT=9000 \
 		SHORESIDE_PSHARE=9200
+		MAX_SPEED=15
 	pAntler targ_${TEAM_VEHICLES[$i]}.moos --MOOSTimeWarp=$TIME_WARP >& logstuff_${TEAM_VEHICLES[$i]}.txt &
 done
 
