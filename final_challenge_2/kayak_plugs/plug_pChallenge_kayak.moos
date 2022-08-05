@@ -1,0 +1,5 @@
+ProcessConfig = pChallenge_kayak
+{
+  AppTick = 1
+  CommsTick = 8
+}

@@ -1,0 +1,175 @@
+//---------------------------------------------------
+// Helm Behavior file 
+
+initialize   DEPLOY  = false
+initialize   RETURN  = false
+initialize   STATION_KEEP = false
+initialize   LOITER  = true
+initialize   CLOSE   = true
+initialize   RUN_AWAY_NOW  = false
+
+
+set MODE = ACTIVE {
+  DEPLOY = true
+} INACTIVE                     
+
+set MODE = RETURNING {
+  MODE = ACTIVE
+  RETURN = true
+} 
+
+set MODE = RUNNING {
+  MODE = ACTIVE
+  RUN_AWAY_NOW = true
+}
+
+set MODE = LOITERING {
+  MODE = ACTIVE
+  LOITER = true
+}
+
+set MODE = CHASING {
+  MODE = ACTIVE
+  RUN_AWAY_NOW = false
+  LOITER = false
+}
+
+
+//----------------------------------------------
+Behavior = BHV_Waypoint
+{
+  name      = loiter
+  pwt       = 100
+  condition = MODE==LOITERING
+  updates   = UP_LOITER
+  runflag   = VEHICLE_UNDERWAY = TRUE
+  endflag   = VEHICLE_UNDERWAY = FALSE
+  perpetual = true
+	
+         speed = 15
+         radius = 3
+     nm_radius = 15.0
+       order = normal
+       points = $(ALL_POINTS) 
+  visual_hints = nextpt_color=white, nextpt_lcolor=khaki
+  visual_hints = edge_color=orange, vertex_color=white
+  visual_hints = edge_size=1, vertex_size=2
+}
+
+//-------------------------------------------
+Behavior = BHV_CutRange
+{
+	// General Behavior Parameters
+   	// ---------------------------
+	name         = cutrange_                         // example
+	pwt          = 500                               // example
+	condition    = MODE==CHASING
+	//condition  = CLOSE = true                      // example
+	updates      = UP_CUT_RANGE                      // example
+	templating   = spawn
+	perpetual    = true
+
+
+   	// General Contact Behavior Parameters
+   	// -----------------------------------
+	bearing_lines = white:0, green:0.65, yellow:0.8, red:1.0   // example
+
+	contact = harry            // example
+	decay = 15,30            // default (seconds)
+	extrapolate = true             // default
+
+	on_no_contact_ok = true             // default
+	time_on_leg = 60               // default (seconds)
+
+   	// Parameters specific to this behavior
+	// ------------------------------------
+	giveup_dist = 5000              // Meters. Default is 0, disabled
+	patience = 50               // [0,100]. Default 0
+	pwt_inner_dist = 0               // Meters. Default is 0.
+	pwt_outer_dist = 5000              // Meters. Default is 0.
+	//pursueflag = PURSUIT=true
+	//giveupflag = PURSUIT=false
+}
+
+//----------------------------------------------
+Behavior = BHV_AvdColregsV19
+{
+  name       = avdcol_
+  pwt        = 10000
+  //condition  = CLOSE = true 
+  condition  = MODE==RUNNING
+  updates    = CONTACT_INFO
+  activeflag   = LOITER=false
+	endflag      = LOITER=true
+  templating = spawn
+
+
+             contact = to-be-set
+             match_group = shark
+    on_no_contact_ok = true
+         extrapolate = true
+               decay = 30,60
+
+	      //  match_group = alpha
+        //  match_type = mokai
+
+	exit_on_filter_group = true
+	
+	post_per_contact_info = true
+	
+        use_refinery = true
+
+        pwt_outer_dist = 100
+        pwt_inner_dist = 5
+        completed_dist = 250
+     min_util_cpa_dist = 3
+     max_util_cpa_dist = 6
+             pwt_grade = linear
+   bearing_line_config = white:0, green:0.65, yellow:0.8, red:1.0
+}
+
+//----------------------------------------------
+Behavior = BHV_Waypoint
+{
+  name      = waypt_return
+  pwt       = 100
+  updates   = RETURN_UPDATES
+  condition = MODE==RETURNING
+  endflag   = STATION_KEEP = true
+  endflag   = CLOSE = false
+
+      speed = 1.3
+     radius = 3.0
+  nm_radius = 15.0
+     point =  0,0
+     repeat = 10
+       lead = 8
+}
+
+//----------------------------------------------
+Behavior = BHV_ConstantDepth
+{
+
+	// General
+	//-----------------------------
+	name = survey_depth
+	pwt = 100
+	condition = MODE==ACTIVE
+	updates = DEPTH_UPDATES
+
+	// Parameters specific to this behavior
+   	// ------------------------------------
+                depth = 250           
+   depth_mismatch_var = DEPTH_DIFF   // example
+             duration = no-time-limit            // default
+}
+
+Behavior = BHV_ConstantSpeed
+{
+  name = const_speed
+  pwt = 100
+  
+  condition = MODE==ACTIVE 
+  updates = CONST_SPEED_UP
+  speed = 6 
+}

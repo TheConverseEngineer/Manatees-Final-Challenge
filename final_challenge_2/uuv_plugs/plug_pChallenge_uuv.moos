@@ -1,0 +1,5 @@
+ProcessConfig = pChallenge_uuv
+{
+  AppTick = 1
+  CommsTick = 8
+}
